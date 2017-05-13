@@ -44,8 +44,7 @@ def save_actions(data_dir):
 		actions_pruned[action] = [i for i,v in enumerate(full_action_dict[action]) \
 		if v['viewpoint'][0] == max_viewpoint and len(v['scale'][0]) == max_frames ]
 
-		print("actions_pruned look like ", actions_pruned)
-
 	return full_action_dict, actions_pruned
 
-save_actions('joint_positions')
+
+
