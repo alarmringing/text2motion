@@ -15,14 +15,14 @@ def main():
     parser = argparse.ArgumentParser(
                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--data_dir', type=str, default='data/',
-                        help='data directory containing input.txt')
+                        help='data directory containing data')
     parser.add_argument('--save_dir', type=str, default='save',
                         help='directory to store checkpointed models')
     parser.add_argument('--log_dir', type=str, default='logs',
                         help='directory to store tensorboard logs')
     parser.add_argument('--rnn_size', type=int, default=128,
                         help='size of RNN hidden state')
-    parser.add_argument('--num_layers', type=int, default=2,
+    parser.add_argument('--num_layers', type=int, default=3,
                         help='number of layers in the RNN')
     parser.add_argument('--model', type=str, default='lstm',
                         help='rnn, gru, lstm, or nas')
@@ -30,7 +30,7 @@ def main():
                         help='minibatch size')
     parser.add_argument('--action_type', type=str, default="shoot_bow",
                         help='type of action to analyze')
-    parser.add_argument('--dimension', type=int, default="0",
+    parser.add_argument('--dimension', type=int, default=0,
                         help='dimension to analyze')
     parser.add_argument('--seq_length', type=int, default=40,
                         help='sequence length')
@@ -66,36 +66,37 @@ def train(args):
     #TODO: THIS NEEDS CHANGING
     data_loader = DataLoader(args.action_type, args.dimension, args.data_dir, args.batch_size, args.seq_length)
     args.vocab_size = data_loader.vocab_size
+    args.joint_num = 30 #THIS IS FIXED
 
     #mostly data loading part
     # check compatibility if training is continued from previously saved model
     if args.init_from is not None:
         # check if all necessary files exist
         assert os.path.isdir(args.init_from)," %s must be a a path" % args.init_from
-        assert os.path.isfile(os.path.join(args.init_from,"config.pkl")),"config.pkl file does not exist in path %s"%args.init_from
-        assert os.path.isfile(os.path.join(args.init_from,"chars_vocab.pkl")),"chars_vocab.pkl.pkl file does not exist in path %s" % args.init_from
+        assert os.path.isfile(os.path.join(args.init_from,'config' + str(args.dimension) + '.pkl')),"config.pkl file does not exist in path %s"%args.init_from
+        assert os.path.isfile(os.path.join(args.init_from, 'pos_dict' + str(args.dimension) + '.pkl')),"chars_vocab.pkl.pkl file does not exist in path %s" % args.init_from
         ckpt = tf.train.get_checkpoint_state(args.init_from)
         assert ckpt, "No checkpoint found"
         assert ckpt.model_checkpoint_path, "No model path found in checkpoint"
 
         # open old config and check if models are compatible
-        with open(os.path.join(args.init_from, 'config.pkl'), 'rb') as f:
+        with open(os.path.join(args.init_from, 'config' + str(args.dimension) + '.pkl'), 'rb') as f:
             saved_model_args = cPickle.load(f)
         need_be_same = ["model", "rnn_size", "num_layers", "seq_length"]
         for checkme in need_be_same:
             assert vars(saved_model_args)[checkme]==vars(args)[checkme],"Command line argument and saved model disagree on '%s' "%checkme
 
         # open saved vocab/dict and check if vocabs/dicts are compatible
-        with open(os.path.join(args.init_from, 'pos_dict.pkl'), 'rb') as f:
+        with open(os.path.join(args.init_from, 'pos_dict' + str(args.dimension) + '.pkl'), 'rb') as f:
             saved_chars, saved_vocab = cPickle.load(f)
         assert saved_chars==data_loader.chars, "Data and loaded model disagree on character set!"
         assert saved_vocab==data_loader.vocab, "Data and loaded model disagree on dictionary mappings!"
 
     if not os.path.isdir(args.save_dir):
         os.makedirs(args.save_dir)
-    with open(os.path.join(args.save_dir, 'config.pkl'), 'wb') as f:
+    with open(os.path.join(args.save_dir, 'config' + str(args.dimension) + '.pkl'), 'wb') as f:
         cPickle.dump(args, f)
-    with open(os.path.join(args.save_dir, 'pos_dict.pkl'), 'wb') as f:
+    with open(os.path.join(args.save_dir, 'pos_dict' + str(args.dimension) + '.pkl'), 'wb') as f:
         cPickle.dump((data_loader.chars, data_loader.vocab), f)
 
     #create model with arguments
@@ -148,7 +149,7 @@ def train(args):
                         or (e == args.num_epochs-1 and
                             b == data_loader.num_batches-1):
                     # save for the last result
-                    checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
+                    checkpoint_path = os.path.join(args.save_dir, 'model' + str(args.dimension) + '.ckpt')
                     saver.save(sess, checkpoint_path,
                                global_step=e * data_loader.num_batches + b)
                     print("model saved to {}".format(checkpoint_path))

@@ -48,7 +48,6 @@ class Model():
 
         #vocab size would be... target space.
         with tf.variable_scope('rnnlm'):
-            print("this part is being run.")
             softmax_w = tf.get_variable("softmax_w",
                                         [args.rnn_size, args.vocab_size]) #rnn size is size of H
             softmax_b = tf.get_variable("softmax_b", [args.vocab_size])
@@ -101,7 +100,7 @@ class Model():
 
     # Generate predictive model
     # Most part applies to character models, so might need some overhaul. 
-    def sample(self, sess, chars, vocab, num=30, prime='The ', sampling_type=1):
+    def sample(self, sess, chars, vocab, num, prime, sampling_type=1):
         state = sess.run(self.cell.zero_state(1, tf.float32))
         for char in prime[:-1]: #for character in 'The'
             x = np.zeros((1, 1)) #x is 1*1 (WHY?)
@@ -138,6 +137,6 @@ class Model():
                 sample = weighted_pick(p)
 
             pred = chars[sample] #choose next letter
-            ret += pred #add to result
+            ret.append(pred) #add to result
             char = pred #iterate, with the last letter being the new option
         return ret
