@@ -70,8 +70,8 @@ class DataLoader():
 
         #just declare paths
         input_file = os.path.join(data_dir, "joint_positions")
-        pos_dict_file = os.path.join(data_dir, "pos_dict.pkl")
-        tensor_file = os.path.join(data_dir, "data.npy")
+        pos_dict_file = os.path.join(data_dir, "pos_dict" + str(dim) + ".pkl")
+        tensor_file = os.path.join(data_dir, "data" + str(dim) + ".npy")
 
         # read full action dict, actions pruned
     	full_action_dict, actions_pruned = save_actions(input_file)
@@ -79,7 +79,7 @@ class DataLoader():
 
         if not (os.path.exists(pos_dict_file) and os.path.exists(tensor_file)):
             print("reading joint info")
-            self.preprocess(input_file, action_type, pos_dict_file, tensor_file)
+            self.preprocess(input_file, pos_dict_file, tensor_file)
         else:
             print("loading preprocessed files")
             self.load_preprocessed(pos_dict_file, tensor_file)
