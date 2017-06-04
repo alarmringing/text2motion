@@ -10,7 +10,9 @@ class Model():
 		#N: number of batches
 		#30: x,y positions for each 15 joints
 		#T: timestep
-		self.learning_rate = learning_rate
+		self.initial_learning_rate = learning_rate
+		global_step = tf.Variable(0, trainable = False)
+		learning_rate = tf.train.exponential_decay(self.initial_learning_rate, global_step, 1000, 0.995, staircase=True)
 		self.batch_size = batch_size
 		self.T = T
 		self.H_size = H_size
@@ -57,10 +59,10 @@ class Model():
 		with tf.variable_scope('softmax'):
 
 			pred = []
+			W = tf.get_variable('W', [self.H_size, self.model_num])
+			b = tf.get_variable('b', [self.model_num], initializer = tf.constant_initializer(0.0))
 			for k in range(len(outputs)):
 				output = outputs[k] 
-				W = tf.get_variable('W_'+ str(k), [self.H_size, self.model_num])
-				b = tf.get_variable('b_'+ str(k), [self.model_num], initializer=tf.constant_initializer(0.0))
 				pred.append(tf.matmul(output, W) + b)
 
 			#self.costs = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=scores, labels=target))
@@ -69,8 +71,8 @@ class Model():
 			self.var_grad = tf.gradients(self.cost, [outputs[0]])[0]
 
 		with tf.name_scope('optimizer'):
-			optimizer = tf.train.AdamOptimizer(self.learning_rate)
-			optimizer.minimize(self.cost)
+			optimizer = tf.train.AdamOptimizer(learning_rate)
+			self.updates = optimizer.minimize(self.cost, global_step = global_step)
 
 
 

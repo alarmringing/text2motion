@@ -14,7 +14,7 @@ def train(model_lstm, batches, num_iterations, print_every, save_dir):
 			values = {
 				model_lstm.input_data: batches[i]
 			}
-			train_loss, state, gradients = sess.run([model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
+			_, train_loss, state, gradients = sess.run([model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
 			if i % print_every == 0: #print every
 				print("epoch {}, train_loss = {:.3f}".format(i, train_loss))
 
@@ -45,9 +45,9 @@ action_label = 'shoot_bow'
 action_data, T = load_data(data_dir, action_label)
 
 #Various model arguments	
-learning_rate = 0.1
+learning_rate = 1e-5
 num_batches = 5
-num_iterations = 1000
+num_iterations = 50000
 state_size = 50
 layer_num = 3
 domain_size = 100
@@ -60,6 +60,6 @@ model_lstm = model.Model(\
 batches = split_data(action_data, num_iterations, num_batches, T)
 
 #train params
-print_every = 100
+print_every = 5000
 save_dir = 'data'
 train(model_lstm, batches, num_iterations, print_every, save_dir)
