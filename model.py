@@ -55,12 +55,13 @@ class Model():
 			self.final_states = states
 
 		with tf.variable_scope('softmax'):
-			self.W = tf.get_variable('W', [self.H_size, self.model_num])
-			self.b = tf.get_variable('b', [self.model_num], initializer=tf.constant_initializer(0.0))
 
 			pred = []
-			for output in outputs: 
-				pred.append(tf.matmul(output, self.W) + self.b)
+			for k in range(len(outputs)):
+				output = outputs[k] 
+				W = tf.get_variable('W_'+ str(k), [self.H_size, self.model_num])
+				b = tf.get_variable('b_'+ str(k), [self.model_num], initializer=tf.constant_initializer(0.0))
+				pred.append(tf.matmul(output, W) + b)
 
 			#self.costs = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=scores, labels=target))
 			self.cost = tf.reduce_sum(tf.pow(tf.stack(pred)-tf.stack(target), 2))/(2 * self.model_num)
@@ -68,5 +69,8 @@ class Model():
 		with tf.name_scope('optimizer'):
 			optimizer = tf.train.AdamOptimizer(self.learning_rate)
 			optimizer.minimize(self.cost)
+
+
+	#def sample()
 
 
