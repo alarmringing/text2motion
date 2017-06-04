@@ -4,24 +4,30 @@ import train
 import animation
 
 def sample(model_path, initial_input):
-	print("running sample! trying to restore the model")
-	#restores the model 
-	saver = tf.train.import_meta_graph(model_path + 'model.meta')
-	saver.restore(sess, model_path + "model.ckpt")
-	print("Maybe model was restored. I'm not sure")
-	sess.run(tf.global_variables_initializer())
-
-	values = {
-		input_data: initial_input
-	}
-	predictions = sess.run([self.pred], initial_input)
-	print("predictions.shapei s ", predictions.shape)
-
-	pred_result = np.zeros((2, 15, len(pred_result))) #this is fixed
-	for i in range(len(predictions)): #for each timestep of prediction
-		pred_result[i%2, i/2, i] = pred_result[i]
-
-	return pred_result
+	
+	with tf.Session() as sess:
+		print("running sample! trying to restore the model")
+		#restores the model 
+		saver = tf.train.import_meta_graph(model_path + 'model_lstm.meta')
+		print("saver found. Now attempting restore ") 
+		#saver.restore(sess, model_path + "model_lstm.ckpt")
+		print("lates tcheckpoint is ", tf.train.latest_checkpoint('./'))
+		saver.restore(sess, model_path + 'model_lstm')
+		print("Maybe model was restored. I'm not sure")
+		sess.run(tf.global_variables_initializer())
+		print("variables are ", tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope = 'my_scope'))
+		graph = tf.get_default_graph()	
+		values = {
+			graph.input_data: initial_input
+		}
+		predictions = sess.run([graph.pred], values)
+		print("predictions.shapei s ", predictions.shape)
+	
+		pred_result = np.zeros((2, 15, len(pred_result))) #this is fixed
+		for i in range(len(predictions)): #for each timestep of prediction
+			pred_result[i%2, i/2, i] = pred_result[i]
+	
+		return pred_result
 
 def generate_initial_input(data_dir, action_class):
 
