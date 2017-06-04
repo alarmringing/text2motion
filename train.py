@@ -14,7 +14,7 @@ def train(model_lstm, batches, num_iterations, print_every, save_dir):
 			values = {
 				model_lstm.input_data: batches[i]
 			}
-			train_loss, state = sess.run([model_lstm.cost, model_lstm.final_states], values)
+			train_loss, state, gradients = sess.run([model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
 			if i % print_every == 0: #print every
 				print("epoch {}, train_loss = {:.3f}".format(i, train_loss))
 
