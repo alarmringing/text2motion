@@ -18,7 +18,7 @@ def train(model_lstm, batches, num_iterations, print_every, save_dir):
 			if i % print_every == 0: #print every
 				print("epoch {}, train_loss = {:.3f}".format(i, train_loss))
 
-		save_path = saver.save(sess, save_dir + "/model.ckpt")
+		save_path = saver.save(sess, save_dir + "/model_lstm")
 
 
 def load_data(data_dir, action_label):
@@ -51,28 +51,30 @@ def split_data(test_num, val_num, action_data, num_iterations, num_batches, T):
 
 
 
-data_dir = 'data/joint_positions'
-action_label = 'shoot_bow'
-action_data, T = load_data(data_dir, action_label)
+if __name__ == '__main__':
 
-#Various model arguments	
-learning_rate = 1e-5
-num_batches = 5
-num_iterations = 50000
-state_size = 50
-layer_num = 3
-domain_size = 100
+	data_dir = 'data/joint_positions'
+	action_label = 'shoot_bow'
+	action_data, T = load_data(data_dir, action_label)
 
-#define model
-model_lstm = model.Model(\
-	learning_rate, num_batches, T, state_size, layer_num)
+	#Various model arguments	
+	learning_rate = 1e-5
+	num_batches = 5
+	num_iterations = 50000
+	state_size = 50
+	layer_num = 3
+	domain_size = 100
 
-#split data into batches
-test_num = 2
-val_num = 2
-batches, val, test = split_data(test_num, val_num, action_data, num_iterations, num_batches, T)
+	#define model
+	model_lstm = model.Model(\
+		learning_rate, num_batches, T, state_size, layer_num)
 
-#train params
-print_every = 5000
-save_dir = 'data'
-train(model_lstm, batches, num_iterations, print_every, save_dir)
+	#split data into batches
+	test_num = 2
+	val_num = 2
+	batches, val, test = split_data(test_num, val_num, action_data, num_iterations, num_batches, T)
+
+	#train params
+	print_every = 5000
+	save_dir = 'data'
+	train(model_lstm, batches, num_iterations, print_every, save_dir)

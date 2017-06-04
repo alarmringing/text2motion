@@ -10,6 +10,7 @@ class Model():
 		#N: number of batches
 		#30: x,y positions for each 15 joints
 		#T: timestep
+		
 		self.initial_learning_rate = learning_rate
 		global_step = tf.Variable(0, trainable = False)
 		learning_rate = tf.train.exponential_decay(self.initial_learning_rate, global_step, 1000, 0.995, staircase=True)
@@ -22,19 +23,8 @@ class Model():
 		#Tensorflow only supports 1D LSTM (for now), so use this
 		self.models = []
 
-		# Global config variables
-		pos = ['x','y']
-
-		#to return
-
 		#placeholders
 		self.input_data = tf.placeholder(tf.float32, [self.batch_size, self.model_num, self.T])
-
-		#start building model for each joint
-		
-		#for i in range(self.model_num):
-		#for each joint and mark wheter x or y
-		#with tf.variable_scope('joint_'+str(i/2)+'_'+pos[i%2]):
 
 		#(slice of) placeholders for input and output	
 		input = tf.unstack(self.input_data[:, :, :-1], axis=2)
@@ -56,17 +46,17 @@ class Model():
 			outputs, states = rnn.static_rnn(rnn_cell, input, dtype=tf.float32)
 			self.final_states = states
 
-		with tf.variable_scope('softmax'):
+		with tf.variable_scope('regression'):
 
-			pred = []
+			self.pred = []
 			W = tf.get_variable('W', [self.H_size, self.model_num])
 			b = tf.get_variable('b', [self.model_num], initializer = tf.constant_initializer(0.0))
 			for k in range(len(outputs)):
 				output = outputs[k] 
-				pred.append(tf.matmul(output, W) + b)
+				self.pred.append(tf.matmul(output, W) + b)
 
 			#self.costs = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=scores, labels=target))
-			self.cost = tf.reduce_sum(tf.pow(tf.stack(pred)-tf.stack(target), 2))/(2 * self.model_num)
+			self.cost = tf.reduce_sum(tf.pow(tf.stack(self.pred)-tf.stack(target), 2))/(2 * self.model_num)
 			#check gradient
 			self.var_grad = tf.gradients(self.cost, [outputs[0]])[0]
 
@@ -74,8 +64,5 @@ class Model():
 			optimizer = tf.train.AdamOptimizer(learning_rate)
 			self.updates = optimizer.minimize(self.cost, global_step = global_step)
 
-
-
-	#def sample()
 
 
