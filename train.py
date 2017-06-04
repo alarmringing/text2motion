@@ -27,16 +27,27 @@ def load_data(data_dir, action_label):
 	T = action_data[0]['pos_world'].shape[2]
 	return action_data, T
 
-def split_data(action_data, num_iterations, num_batches, T):
-	#arrange input data as N*30*T
+def split_data(test_num, val_num, action_data, num_iterations, num_batches, T):
+	
+	available_indices = range(len(action_data))
+
+	#randomly select test and val data
+	np.random.shuffle(available_indices)
+	test_indices = [available_indices.pop() for i in range(test_num)]
+	val_indices = [available_indices.pop() for i in range(val_num)]
+	test = [action_data[i] for i in test_indices]
+	val = [action_data[i] for i in val_indices]
+
+	#write to batches list
 	batches = []
 	for i in range(num_iterations):
-		chosen_indices = np.random.choice(len(action_data), num_batches)
-		#print("chosen_indices is ", chosen_indices)
+		#shapes data to N * 30 * T
+		chosen_indices = np.random.choice(available_indices, num_batches)
 		batches.append(np.vstack(tuple([\
 			np.reshape(action_data[i]['pos_world'], (1, -1, T))  for i in chosen_indices])))
 
-	return batches
+
+	return batches, val, test
 
 
 
@@ -57,7 +68,9 @@ model_lstm = model.Model(\
 	learning_rate, num_batches, T, state_size, layer_num)
 
 #split data into batches
-batches = split_data(action_data, num_iterations, num_batches, T)
+test_num = 2
+val_num = 2
+batches, val, test = split_data(test_num, val_num, action_data, num_iterations, num_batches, T)
 
 #train params
 print_every = 5000
