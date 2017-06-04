@@ -9,13 +9,12 @@ def train(model_lstm, batches, num_iterations, print_every, save_dir):
 	saver = tf.train.Saver()
 
 	with tf.Session() as sess:
+		sess.run(tf.global_variables_initializer())
 		for i in range(num_iterations):
-			sess.run(tf.global_variables_initializer())
 			values = {
 				model_lstm.input_data: batches[i]
 			}
-			train_loss, state, W, b = \
-			sess.run([model_lstm.cost, model_lstm.final_states, model_lstm.W, model_lstm.b], values)
+			train_loss, state = sess.run([model_lstm.cost, model_lstm.final_states], values)
 			if i % print_every == 0: #print every
 				print("epoch {}, train_loss = {:.3f}".format(i, train_loss))
 
