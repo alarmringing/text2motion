@@ -8,23 +8,22 @@ def sample(model_path, initial_input):
 	with tf.Session() as sess:
 		#restores the model 
 		saver = tf.train.import_meta_graph(model_path + 'model_lstm.meta')
-		print("saver found. Now attempting restore ") 
-		#saver.restore(sess, model_path + "model_lstm.ckpt")
 		saver.restore(sess, model_path + 'model_lstm')
-		print("Maybe model was restored. I'm not sure")
-		
+		#initialize session and graph
 		sess.run(tf.global_variables_initializer())
-		print([n.name for n in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)])
-		graph = tf.get_default_graph()	
-		values = {
-			"input_data:0": initial_input
-		}
-		predictions = sess.run([graph.get_tensor_by_name("regression/predictions:0")], values)
-		print("predictions.shapei s ", predictions.shape)
-	
-		pred_result = np.zeros((2, 15, len(pred_result))) #this is fixed
-		for i in range(predictions.shape[0]): #for each timestep of prediction
-			pred_result[i%2, i/2, i] = pred_result[i,:]
+		graph = tf.get_default_graph()
+		pred_result = np.zeros((2, 15, len(initial_input)-1)) #this is fixed
+
+		#at each timestep
+		initial_timestep = initial_input[:,:,0:2]
+		for t in range(initial_input.shape[2]-1):
+			values = {
+				"input_data:0": initial_timestep
+			}
+			predictions = sess.run([graph.get_tensor_by_name("regression/predictions:0")], values)
+			print("shape of predictions[0] is ", predictions[0].shape)
+			pred_result[t%2, t/2, t] = predictions[0]
+			initial_timestep = np.vstack((predictions[0], np.zeros((30)))) #second value is meaningless
 	
 		return pred_result
 
@@ -35,9 +34,7 @@ def generate_initial_input(data_dir, action_class):
 	print("lucky ind is ", lucky_ind)
 	#reshape to 1*30*T
 	stacked = np.reshape(action_data[lucky_ind]['pos_world'], (1, -1, T)) 
-	#return first timestep of this ,1*30*1
-	return stacked[:,:,0]
-
+	return stacked
 
 
 if __name__ == '__main__':
