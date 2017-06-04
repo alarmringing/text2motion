@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np  
 import check_mat
 import model
-
+import random
 
 def train(model_lstm, batches, num_iterations, print_every, save_dir):
 	#to save with
@@ -29,10 +29,10 @@ def load_data(data_dir, action_label):
 
 def split_data(test_num, val_num, action_data, num_iterations, num_batches, T):
 	
-	available_indices = range(len(action_data))
+	available_indices = list(range(len(action_data)))
 
 	#randomly select test and val data
-	np.random.shuffle(available_indices)
+	random.shuffle(available_indices)
 	test_indices = [available_indices.pop() for i in range(test_num)]
 	val_indices = [available_indices.pop() for i in range(val_num)]
 	test = [action_data[i] for i in test_indices]
