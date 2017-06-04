@@ -37,7 +37,9 @@ def generate_initial_input(data_dir, action_class):
 	lucky_ind = np.random.choice(len(action_data), 1) #randomly choose one instance! 
 	print("lucky ind is ", lucky_ind)
 	#reshape to 1*30*T
-	stacked = np.reshape(action_data[lucky_ind]['pos_world'], (1, -1, T)) 
+	print("original shape is ", action_data[lucky_ind]['pos_world'])
+	stacked = np.vstack((action_data[lucky_ind]['pos_world'][0], action_data[lucky_ind]['pos_world'][1]))
+	stacked = np.expand_dims(stacked, axis=0)
 	return stacked
 
 
