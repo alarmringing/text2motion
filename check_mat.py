@@ -54,11 +54,11 @@ def save_actions(data_dir):
 
 
 
-'''
+"""
 Loads the data in various ways for the tensorflow model.
 If you don't save, 
 only function used by 
-'''
+
 class DataLoader():
     def __init__(self, action_type, dim, data_dir, batch_size, seq_length, encoding='utf-8'):
         self.data_dir = data_dir
@@ -157,6 +157,6 @@ class DataLoader():
     def reset_batch_pointer(self):
         self.pointer = 0
 
-
+"""
 
 
