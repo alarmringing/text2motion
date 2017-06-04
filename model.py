@@ -65,10 +65,13 @@ class Model():
 
 			#self.costs = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=scores, labels=target))
 			self.cost = tf.reduce_sum(tf.pow(tf.stack(pred)-tf.stack(target), 2))/(2 * self.model_num)
+			#check gradient
+			self.var_grad = tf.gradients(self.cost, [outputs[0]])[0]
 
 		with tf.name_scope('optimizer'):
 			optimizer = tf.train.AdamOptimizer(self.learning_rate)
 			optimizer.minimize(self.cost)
+
 
 
 	#def sample()
