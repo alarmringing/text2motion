@@ -12,18 +12,22 @@ def sample(model_path, initial_input):
 		#initialize session and graph
 		sess.run(tf.global_variables_initializer())
 		graph = tf.get_default_graph()
-		pred_result = np.zeros((2, 15, len(initial_input)-1)) #this is fixed
+		T = initial_input.shape[2]
+		pred_result = np.zeros((2, 15, T-1)) #this is fixed
 
 		#at each timestep
-		initial_timestep = initial_input[:,:,0:2]
+		initial_timestep = initial_input
 		for t in range(initial_input.shape[2]-1):
 			values = {
 				"input_data:0": initial_timestep
 			}
 			predictions = sess.run([graph.get_tensor_by_name("regression/predictions:0")], values)
-			print("shape of predictions[0] is ", predictions[0].shape)
-			pred_result[t%2, t/2, t] = predictions[0]
-			initial_timestep = np.vstack((predictions[0], np.zeros((30)))) #second value is meaningless
+			this_pred = predictions[0][0,0,:]
+			print("shape of this_pred is ", this_pred.shape)
+			print("shape of initial_input si ", initial_input.shape)
+			pred_result[0, :, t] = this_pred[:15]
+			pred_result[1, :, t] = this_pred[15:]
+			initial_timestep = np.concatenate((np.reshape(this_pred, (1,-1,1)), np.zeros((1,30,T-1))), axis=2) #second value is meaningless
 	
 		return pred_result
 
