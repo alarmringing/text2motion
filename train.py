@@ -60,7 +60,7 @@ if __name__ == '__main__':
 	#Various model arguments	
 	learning_rate = 1e-5
 	num_batches = 5
-	num_iterations = 50000
+	num_iterations = 30000
 	state_size = 50
 	layer_num = 3
 	domain_size = 100

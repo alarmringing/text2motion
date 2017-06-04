@@ -24,7 +24,7 @@ class Model():
 		self.models = []
 
 		#placeholders
-		self.input_data = tf.placeholder(tf.float32, [self.batch_size, self.model_num, self.T], name = 'input_data')
+		self.input_data = tf.placeholder(tf.float32, [None, self.model_num, self.T], name = 'input_data')
 
 		#(slice of) placeholders for input and output	
 		input = tf.unstack(self.input_data[:, :, :-1], axis=2)

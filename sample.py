@@ -14,11 +14,12 @@ def sample(model_path, initial_input):
 		print("Maybe model was restored. I'm not sure")
 		
 		sess.run(tf.global_variables_initializer())
+		print([n.name for n in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)])
 		graph = tf.get_default_graph()	
 		values = {
-			tf.get_variable("input_data:0"): initial_input
+			"input_data:0": initial_input
 		}
-		predictions = sess.run([tf.get_variable("predictions:0")], values)
+		predictions = sess.run([graph.get_tensor_by_name("regression/predictions:0")], values)
 		print("predictions.shapei s ", predictions.shape)
 	
 		pred_result = np.zeros((2, 15, len(pred_result))) #this is fixed
