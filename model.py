@@ -15,21 +15,16 @@ class Model():
 		global_step = tf.Variable(0, trainable = False)
 		learning_rate = tf.train.exponential_decay(self.initial_learning_rate, global_step, 1000, 0.995, staircase=True)
 		self.batch_size = batch_size
-		self.T = T
 		self.H_size = H_size
 		self.layer_num = layer_num
 		self.model_num = 30 #THIS IS FIXED! NUMBER OF MODELS, EACH 1D TIMELINE (BATCH * LENGTH)
 
-		#Tensorflow only supports 1D LSTM (for now), so use this
-		self.models = []
-
 		#placeholders
-		self.input_data = tf.placeholder(tf.float32, [None, self.model_num, self.T], name = 'input_data')
+		self.input_data = tf.placeholder(tf.float32, [None, self.model_num, T], name = 'input_data')
 
 		#(slice of) placeholders for input and output	
 		input = tf.unstack(self.input_data[:, :, :-1], axis=2)
-		target = tf.unstack(self.input_data[:, :, 1:], axis=2)
-
+		target = tf.unstack(self.input_data[:, :, 1:], axis=2)	
 		#attach multiple LSTM cells depending on layer_num
 		rnn_cells = []
 		for j in range(self.layer_num):
