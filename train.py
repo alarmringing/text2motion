@@ -34,7 +34,7 @@ def train(model_lstm, batches, num_iterations, print_every, save_every, save_dir
 
 			if i % print_every == 0: #print every
 				save_path = saver.save(sess, save_dir + "/" + save_name)
-				print("epoch {}/{}, train_loss = {:.5f}".format(i, num_iterations, train_loss))
+				print("epoch {}/{}, train_loss = {:.7f}".format(i, num_iterations, train_loss))
 			end = time.time()
 			
 		save_path = saver.save(sess, save_dir + "/" + save_name)
