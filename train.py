@@ -8,7 +8,7 @@ import os
 import time
 
 
-def train(model_lstm, batches, num_iterations, print_every, save_dir):
+def train(model_lstm, batches, num_iterations, print_every, save_every, save_dir, save_name):
 	
 	#to save with
 	saver = tf.train.Saver()
@@ -33,10 +33,11 @@ def train(model_lstm, batches, num_iterations, print_every, save_dir):
 
 
 			if i % print_every == 0: #print every
-				print("epoch {}, train_loss = {:.3f}".format(i, train_loss))
+				save_path = saver.save(sess, save_dir + "/" + save_name)
+				print("epoch {}/{}, train_loss = {:.5f}".format(i, num_iterations, train_loss))
 			end = time.time()
-
-		save_path = saver.save(sess, save_dir + "/model_lstm_gpu")
+			
+		save_path = saver.save(sess, save_dir + "/" + save_name)
 
 
 def load_data(data_dir, action_label):
@@ -53,6 +54,7 @@ def split_data(test_num, val_num, action_data, num_iterations, num_batches, T):
 	random.shuffle(available_indices)
 	test_indices = [available_indices.pop() for i in range(test_num)]
 	val_indices = [available_indices.pop() for i in range(val_num)]
+	print("test_indices are ", test_indices, " and val_indices are ", val_indices)
 	test = [action_data[i] for i in test_indices]
 	val = [action_data[i] for i in val_indices]
 
@@ -80,9 +82,9 @@ if __name__ == '__main__':
 	action_data, T = load_data(data_dir, action_label)
 
 	#Various model arguments	
-	learning_rate = 1e-5
-	num_batches = 5
-	num_iterations = 500000
+	learning_rate = 1.5e-3
+	num_batches = 10
+	num_iterations = 50000
 	state_size = 100
 	layer_num = 3
 	domain_size = 100
@@ -98,5 +100,7 @@ if __name__ == '__main__':
 
 	#train params
 	print_every = 1000
+	save_every = 10000
 	save_dir = 'data'
-	train(model_lstm, batches, num_iterations, print_every, save_dir)
+	save_name = 'model_lstm_instance-1_0'
+	train(model_lstm, batches, num_iterations, print_every, save_every, save_dir, save_name)
