@@ -36,7 +36,7 @@ class Model():
 		initial_state = rnn_cell.zero_state(self.H_size, tf.float32) #initialize weights
 
 		#logits and predictions
-		with tf.variable_scope('output'):
+		with tf.device("/gpu:0") and tf.variable_scope('output'):
 			#state output from rnn
 			outputs, states = rnn.static_rnn(rnn_cell, input, dtype=tf.float32)
 			self.final_states = states

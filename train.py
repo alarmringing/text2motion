@@ -9,7 +9,7 @@ import time
 
 
 def train(model_lstm, batches, num_iterations, print_every, save_dir):
-
+	
 	#to save with
 	saver = tf.train.Saver()
 	
@@ -17,7 +17,6 @@ def train(model_lstm, batches, num_iterations, print_every, save_dir):
 		summaries = tf.summary.merge_all()
 		writer = tf.summary.FileWriter(os.path.join('logs', time.strftime("%Y-%m-%d-%H-%M-%S")))
 		writer.add_graph(sess.graph)
-
 		sess.run(tf.global_variables_initializer())
 
 		for i in range(num_iterations):
@@ -26,7 +25,7 @@ def train(model_lstm, batches, num_iterations, print_every, save_dir):
 				model_lstm.input_data: batches[i]
 			}
 
-			_, train_loss, state, gradients = sess.run([, model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
+			_, train_loss, state, gradients = sess.run([model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
 
 			#instrument for tensorboard	
 			summ, _, train_loss, state, gradients = sess.run([summaries, model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
@@ -37,7 +36,7 @@ def train(model_lstm, batches, num_iterations, print_every, save_dir):
 				print("epoch {}, train_loss = {:.3f}".format(i, train_loss))
 			end = time.time()
 
-		save_path = saver.save(sess, save_dir + "/model_lstm")
+		save_path = saver.save(sess, save_dir + "/model_lstm_gpu")
 
 
 def load_data(data_dir, action_label):
@@ -83,8 +82,8 @@ if __name__ == '__main__':
 	#Various model arguments	
 	learning_rate = 1e-5
 	num_batches = 5
-	num_iterations = 30000
-	state_size = 50
+	num_iterations = 500000
+	state_size = 100
 	layer_num = 3
 	domain_size = 100
 
@@ -98,6 +97,6 @@ if __name__ == '__main__':
 	batches, val, test = split_data(test_num, val_num, action_data, num_iterations, num_batches, T)
 
 	#train params
-	print_every = 5000
+	print_every = 1000
 	save_dir = 'data'
 	train(model_lstm, batches, num_iterations, print_every, save_dir)
