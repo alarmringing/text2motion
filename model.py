@@ -23,8 +23,8 @@ class Model():
 		self.input_data = tf.placeholder(tf.float32, [None, self.model_num, T], name = 'input_data')
 
 		#(slice of) placeholders for input and output	
-		input = tf.unstack(self.input_data[:, :, :-1], axis=2)
-		target = tf.unstack(self.input_data[:, :, 1:], axis=2)	
+		self.input = tf.unstack(self.input_data[:, :, :-1], axis=2, name = 'input')
+		self.target = tf.unstack(self.input_data[:, :, 1:], axis=2, name = 'target')	
 		#attach multiple LSTM cells depending on layer_num
 		rnn_cells = []
 		for j in range(self.layer_num):
@@ -36,9 +36,9 @@ class Model():
 		initial_state = rnn_cell.zero_state(self.H_size, tf.float32) #initialize weights
 
 		#logits and predictions
-		with tf.device("/gpu:0") and tf.variable_scope('output'):
+		with tf.variable_scope('output'):
 			#state output from rnn
-			outputs, states = rnn.static_rnn(rnn_cell, input, dtype=tf.float32)
+			outputs, states = rnn.static_rnn(rnn_cell, self.input, dtype=tf.float32)
 			self.final_states = states
 
 		with tf.variable_scope('regression'):
@@ -51,7 +51,7 @@ class Model():
 				self.pred.append(tf.matmul(output, W) + b)
 
 			self.pred = tf.stack(self.pred, name = 'predictions')
-			self.cost = tf.reduce_sum(tf.pow(self.pred-tf.stack(target), 2)/self.model_num, name = 'cost')
+			self.cost = tf.reduce_sum(tf.pow(self.pred-tf.stack(self.target), 2)/self.model_num, name = 'cost')
 
 			#tensorboard summary
 			tf.summary.scalar('train_loss', self.cost)
