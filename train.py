@@ -62,9 +62,13 @@ def split_data(test_num, val_num, action_data, num_iterations, num_batches, T):
 	for i in range(num_iterations):
 		#shapes data to N * 30 * T
 		chosen_indices = np.random.choice(available_indices, num_batches)
-		batches.append(np.vstack(tuple([\
-			np.reshape(action_data[i]['pos_world'], (1, -1, T))  for i in chosen_indices])))
+		chosen_mats = []
+		for j in chosen_indices:
+			stacked = np.vstack((action_data[j]['pos_world'][0], action_data[j]['pos_world'][1])) #30*T
+			stacked = np.expand_dims(stacked, axis=0) #turns it into 1*30*T
+			chosen_mats.append(stacked)
 
+		batches.append(np.vstack(tuple(chosen_mats)))
 
 	return batches, val, test
 
