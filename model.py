@@ -52,8 +52,7 @@ class Model():
 
 			self.pred = tf.stack(self.pred, name = 'predictions')
 
-			#self.costs = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=scores, labels=target))
-			self.cost = tf.reduce_sum(tf.pow(self.pred-tf.stack(target), 2))/(2 * self.model_num)
+			self.cost = tf.reduce_sum(tf.pow(self.pred-tf.stack(target), 2)/self.model_num, name = 'cost')
 			#check gradient
 			self.var_grad = tf.gradients(self.cost, [outputs[0]])[0]
 
