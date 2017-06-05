@@ -54,12 +54,23 @@ class Model():
 
 			#self.costs = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=scores, labels=target))
 			self.cost = tf.reduce_sum(tf.pow(self.pred-tf.stack(target), 2))/(2 * self.model_num)
+
+			#tensorboard summary
+			tf.summary.scalar('train_loss', self.cost)
+			
 			#check gradient
 			self.var_grad = tf.gradients(self.cost, [outputs[0]])[0]
 
 		with tf.name_scope('optimizer'):
 			optimizer = tf.train.AdamOptimizer(learning_rate)
 			self.updates = optimizer.minimize(self.cost, global_step = global_step)
+
+		# instrument tensorboard
+        #tf.summary.histogram('logits', self.logits)
+        #tf.summary.histogram('loss', loss)
+        
+
+
 
 
 
