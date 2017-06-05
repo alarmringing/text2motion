@@ -4,15 +4,15 @@ import train
 import sys
 import animation
 
-def sample(model_path, initial_input, savefile_name):
+def sample(model_path, initial_input, savefile_name, pre_step):
 	
 	def mean_squared_error(pred, truth):
-		return np.mean((pred - truth)**2)/(pred.size)
+		return np.mean((pred - truth)**2)/(30)
 
 	with tf.Session() as sess:
 		#restores the model 
-		saver = tf.train.import_meta_graph(model_path + 'model_lstm.meta')
-		saver.restore(sess, model_path + 'model_lstm')
+		saver = tf.train.import_meta_graph(model_path + savefile_name +'.meta')
+		saver.restore(sess, model_path + savefile_name)
 		#initialize session and graph
 		sess.run(tf.global_variables_initializer())
 		graph = tf.get_default_graph()
@@ -20,32 +20,28 @@ def sample(model_path, initial_input, savefile_name):
 		pred_result = np.zeros((2, 15, T)) #this is fixed
 
 		#initial timesteps
-		pred_result[0, :, 0] = initial_input[0,:15,0]
-		pred_result[1, :, 0] = initial_input[0,15:,0]
+		pred_result[0, :, :pre_step] = initial_input[0,:15,:pre_step]
+		pred_result[1, :, :pre_step] = initial_input[0,15:,:pre_step]
 
 		#INPUT SHOULD BE IN BATCH * 30 * TIMESTEP
 		#initial input
-		print("shape of initial_input is ", initial_input.shape)
-		print("shape of initial_input first timeseries is ", initial_input[0,:,0].shape)
-		print("shape of np.zeros is ", np.zeros((1,30,T-1)).shape)
-		initial_timestep = np.reshape(initial_input[0,:,0], (1, -1, 1))
+
+		initial_timestep = np.reshape(initial_input[0,:,:pre_step], (1, -1, pre_step))
 		timestep_input = \
-			np.concatenate((initial_timestep, np.zeros((1,30,T-1))), axis=2)
+			np.concatenate((initial_timestep, np.zeros((1,30,T-pre_step))), axis=2)
 		#at each timestep
-		for t in range(initial_input.shape[2]-1):
+		for t in range(pre_step-1,initial_input.shape[2]-1):
 			values = {
 				"input_data:0": timestep_input
 			}
 			predictions = sess.run([graph.get_tensor_by_name("regression/predictions:0")], values)
-
+			#PREDICTIONS WILL BE IN T * BATCH * 30
 			this_pred = predictions[0][t, 0, :]
 			pred_result[0, :, t+1] = this_pred[:15]
 			pred_result[1, :, t+1] = this_pred[15:]
-			timestep_input = np.concatenate((initial_timestep, timestep_input[:,:,:t], \
-			np.reshape(this_pred, (1,-1,1)), np.zeros((1,30,T-t-2))), axis=2)
+			timestep_input = np.concatenate((timestep_input[:,:,:t], \
+			np.reshape(this_pred, (1,-1,1)), np.zeros((1,30,T-t-1))), axis=2)
 			
-			#report error with ground truth in this timestep
-			print("timestep: ", t, " error: ", mean_squared_error(initial_input[:,:,t+1].flatten(), this_pred.flatten()))
 		return pred_result
 
 def generate_initial_input(data_dir, action_class):
@@ -62,7 +58,8 @@ def generate_initial_input(data_dir, action_class):
 if __name__ == '__main__':
 
 	savefile_name = sys.argv[1]
-
+	pre_step = 10
 	initial_input = generate_initial_input('data/joint_positions', 'shoot_bow')
-	pred_result = sample('data/', initial_input, savefile_name)
+	pred_result = sample('data/', initial_input, savefile_name, 10)
+	#animation.animate_action(np.reshape(initial_input, (2, 15, 40)), 'original shoot_bow')
 	animation.animate_action(pred_result, 'Prediction of shoot_bow')
