@@ -51,14 +51,24 @@ class Model():
 				self.pred.append(tf.matmul(output, W) + b)
 
 			self.pred = tf.stack(self.pred, name = 'predictions')
-
 			self.cost = tf.reduce_sum(tf.pow(self.pred-tf.stack(target), 2)/self.model_num, name = 'cost')
+
+			#tensorboard summary
+			tf.summary.scalar('train_loss', self.cost)
+			
 			#check gradient
 			self.var_grad = tf.gradients(self.cost, [outputs[0]])[0]
 
 		with tf.name_scope('optimizer'):
 			optimizer = tf.train.AdamOptimizer(learning_rate)
 			self.updates = optimizer.minimize(self.cost, global_step = global_step)
+
+		# instrument tensorboard
+        #tf.summary.histogram('logits', self.logits)
+        #tf.summary.histogram('loss', loss)
+        
+
+
 
 
 

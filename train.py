@@ -1,22 +1,41 @@
 import tensorflow as tf
-import numpy as np  
+import numpy as np 
+
 import check_mat
 import model
 import random
+import os
+import time
+
 
 def train(model_lstm, batches, num_iterations, print_every, save_dir):
+
 	#to save with
 	saver = tf.train.Saver()
-
+	
 	with tf.Session() as sess:
+		summaries = tf.summary.merge_all()
+		writer = tf.summary.FileWriter(os.path.join('logs', time.strftime("%Y-%m-%d-%H-%M-%S")))
+		writer.add_graph(sess.graph)
+
 		sess.run(tf.global_variables_initializer())
+
 		for i in range(num_iterations):
+			start = time.time()
 			values = {
 				model_lstm.input_data: batches[i]
 			}
-			_, train_loss, state, gradients = sess.run([model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
+
+			_, train_loss, state, gradients = sess.run([, model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
+
+			#instrument for tensorboard	
+			summ, _, train_loss, state, gradients = sess.run([summaries, model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
+			writer.add_summary(summ, i*num_batches)
+
+
 			if i % print_every == 0: #print every
 				print("epoch {}, train_loss = {:.3f}".format(i, train_loss))
+			end = time.time()
 
 		save_path = saver.save(sess, save_dir + "/model_lstm")
 
