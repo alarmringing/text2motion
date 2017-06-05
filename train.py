@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np 
-
 import check_mat
 import model
 import random
@@ -25,7 +24,8 @@ def train(model_lstm, batches, num_iterations, print_every, save_every, save_dir
 				model_lstm.input_data: batches[i]
 			}
 
-			_, train_loss, state, gradients = sess.run([model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
+			_, train_loss, state, \
+			target, pred, gradients = sess.run([model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.target, model_lstm.pred, model_lstm.var_grad], values)
 
 			#instrument for tensorboard	
 			summ, _, train_loss, state, gradients = sess.run([summaries, model_lstm.updates, model_lstm.cost, model_lstm.final_states, model_lstm.var_grad], values)
@@ -35,6 +35,7 @@ def train(model_lstm, batches, num_iterations, print_every, save_every, save_dir
 			if i % print_every == 0: #print every
 				save_path = saver.save(sess, save_dir + "/" + save_name)
 				print("epoch {}/{}, train_loss = {:.7f}".format(i, num_iterations, train_loss))
+				print("target is ", target[0][0,:], " and pred is ", pred[0,0,:])
 			end = time.time()
 			
 		save_path = saver.save(sess, save_dir + "/" + save_name)
@@ -102,5 +103,5 @@ if __name__ == '__main__':
 	print_every = 1000
 	save_every = 10000
 	save_dir = 'data'
-	save_name = 'model_lstm_instance-1_0'
+	save_name = 'model_lstm_test'
 	train(model_lstm, batches, num_iterations, print_every, save_every, save_dir, save_name)
