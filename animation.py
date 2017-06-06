@@ -3,9 +3,10 @@ import matplotlib.animation as animation
 import matplotlib.axes as axes
 import numpy as np
 import check_mat
+import os
 
 
-def animate_action(mat, title):
+def animate_action(mat, action, title):
 	'''
 	Takes an joint position matrix 2*15*framerate, and animates it on pyplot.
 
@@ -28,12 +29,16 @@ def animate_action(mat, title):
 	#get_tight_layout()
 
 	#updates the scatter dots -- not showing right now, there's a bug
+
+	dir_name = os.path.join(os.getcwd(), action)
+	os.mkdir(dir_name)
+
 	def update_dots(i, mat):
 		scat.set_offsets([mat[0,:,i],mat[1,:,i]])
 		connect_plot(mat[:,:,i])
 
 		if i % 5 == 0:
-			img_title = title+ '_%d'%i
+			img_title = os.path.join(dir_name, 'sample_%d'%i)
 			plt.savefig(img_title)
 
 		return scat
@@ -66,18 +71,16 @@ def animate_two(mat1, mat2):
 	animate_action(mat2, "mat2")
 
 
-
-
-
 #debugging
 if __name__ == '__main__':
 	full_action_dict, actions_pruned = check_mat.save_actions('data/joint_positions')
-	option1 = full_action_dict['shoot_bow'][actions_pruned['shoot_bow'][5]]['pos_world']
+	#option1 = full_action_dict['shoot_bow'][actions_pruned['shoot_bow'][5]]['pos_world']
 
 	#test
-	title = 'test1/great'
+	title = 'clap'
+	action = full_action_dict['clap'][actions_pruned['clap'][5]]['pos_world']
 
-	animate_action(option1, title)
+	animate_action(action, 'clap', title)
 
 
 
