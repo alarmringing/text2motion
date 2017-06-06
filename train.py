@@ -35,7 +35,6 @@ def train(model_lstm, batches, num_iterations, print_every, save_every, save_dir
 			if i % print_every == 0: #print every
 				save_path = saver.save(sess, save_dir + "/" + save_name)
 				print("epoch {}/{}, train_loss = {:.7f}".format(i, num_iterations, train_loss))
-				print("target is ", target[0][0,:], " and pred is ", pred[0,0,:])
 			end = time.time()
 			
 		save_path = saver.save(sess, save_dir + "/" + save_name)
@@ -79,14 +78,14 @@ def split_data(test_num, val_num, action_data, num_iterations, num_batches, T):
 if __name__ == '__main__':
 
 	data_dir = 'data/joint_positions'
-	action_label = 'shoot_bow'
+	action_label = argv[1]
 	action_data, T = load_data(data_dir, action_label)
 
 	#Various model arguments	
 	learning_rate = 1.5e-3
 	num_batches = 10
-	num_iterations = 50000
-	state_size = 100
+	num_iterations = 30000
+	state_size = 200
 	layer_num = 3
 	domain_size = 100
 
@@ -103,5 +102,5 @@ if __name__ == '__main__':
 	print_every = 1000
 	save_every = 10000
 	save_dir = 'data'
-	save_name = 'model_lstm_test'
+	save_name = 'model_lstm_' + action_label
 	train(model_lstm, batches, num_iterations, print_every, save_every, save_dir, save_name)
