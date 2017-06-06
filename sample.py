@@ -65,6 +65,6 @@ if __name__ == '__main__':
 	action = extract_action('data/joint_positions', action_type, test_ind)
 	initial_input = generate_initial_input(action)
 	pred_result = sample('data/', initial_input, savefile_name, pre_step)
-	animation.animate_action(pred_result, 'Prediction of shoot_bow')
+	animation.animate_action(pred_result, action_type, test_ind,'Prediction of %s'%action_type)
 
 
