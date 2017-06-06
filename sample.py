@@ -14,7 +14,6 @@ def sample(model_path, initial_input, savefile_name, pre_step):
 		saver = tf.train.import_meta_graph(model_path + savefile_name +'.meta')
 		saver.restore(sess, model_path + savefile_name)
 		#initialize session and graph
-		sess.run(tf.global_variables_initializer())
 		graph = tf.get_default_graph()
 		T = initial_input.shape[2]
 		pred_result = np.zeros((2, 15, T)) #this is fixed
@@ -37,6 +36,7 @@ def sample(model_path, initial_input, savefile_name, pre_step):
 			predictions = sess.run([graph.get_tensor_by_name("regression/predictions:0")], values)
 			#PREDICTIONS WILL BE IN T * BATCH * 30
 			this_pred = predictions[0][t, 0, :]
+			print("this_pred looks like ", this_pred)
 			pred_result[0, :, t+1] = this_pred[:15]
 			pred_result[1, :, t+1] = this_pred[15:]
 			timestep_input = np.concatenate((timestep_input[:,:,:t], \
@@ -44,10 +44,11 @@ def sample(model_path, initial_input, savefile_name, pre_step):
 			
 		return pred_result
 
-def generate_initial_input(data_dir, action_class):
+def generate_initial_input(data_dir, action_class, test_ind):
 
 	action_data, T = train.load_data(data_dir, action_class)
-	lucky_ind = np.random.choice(len(action_data), 1) #randomly choose one instance! 
+	#lucky_ind = np.random.choice(len(action_data), 1) #randomly choose one instance! 
+	lucky_ind = int(test_ind)
 	print("lucky ind is ", lucky_ind)
 	#reshape to 1*30*T
 	stacked = np.vstack((action_data[lucky_ind]['pos_world'][0], action_data[lucky_ind]['pos_world'][1]))
@@ -58,8 +59,9 @@ def generate_initial_input(data_dir, action_class):
 if __name__ == '__main__':
 
 	savefile_name = sys.argv[1]
-	pre_step = 10
-	initial_input = generate_initial_input('data/joint_positions', 'shoot_bow')
+	test_ind = sys.argv[2]
+	pre_step = 5
+	initial_input = generate_initial_input('data/joint_positions', 'shoot_bow', test_ind)
 	pred_result = sample('data/', initial_input, savefile_name, 10)
 	#animation.animate_action(np.reshape(initial_input, (2, 15, 40)), 'original shoot_bow')
 	animation.animate_action(pred_result, 'Prediction of shoot_bow')
