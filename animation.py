@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.axes as axes
 import numpy as np
 import check_mat
 
@@ -16,9 +17,12 @@ def animate_action(mat, title):
 	fig = plt.figure()
 	plt.title(title)
 	plt.axis('scaled') #keep axis scaled
+
 	plt.gca().invert_yaxis() #flip yaxis because it's negative. why? 
 	scat = plt.scatter(mat[0,:,0], mat[1,:,0], s=100)
 	plt.autoscale(False)
+
+
 	lines = plt.plot([],[])
 
 	#get_tight_layout()
@@ -27,6 +31,11 @@ def animate_action(mat, title):
 	def update_dots(i, mat):
 		scat.set_offsets([mat[0,:,i],mat[1,:,i]])
 		connect_plot(mat[:,:,i])
+
+		if i % 5 == 0:
+			img_title = title+ '_%d'%i
+			plt.savefig(img_title)
+
 		return scat
 
 	#connect between joints for readability
@@ -40,10 +49,14 @@ def animate_action(mat, title):
 		plt.scatter(dots[0], dots[1], s=30, alpha=1)
 
 	#animate fig
-	scatAnim = animation.FuncAnimation(fig, update_dots, blit=False, frames=xrange(numframes), interval = 1, fargs=(mat,))
-	plt.show()
-	filename = title+'.mp4'
+	scatAnim = animation.FuncAnimation(fig, update_dots, blit=False, frames=numframes, interval = 1, repeat=True, fargs=(mat,))
+	
+	#save as a file with frame rate of choice
+	filename = title +'.mp4'
 	scatAnim.save(filename, fps=15, extra_args=['-vcodec', 'libx264'])
+
+	#show plt
+	plt.show()
 
 def animate_two(mat1, mat2):
 	
@@ -52,15 +65,24 @@ def animate_two(mat1, mat2):
 	#=plt.subplot(1,2,2)
 	animate_action(mat2, "mat2")
 
+
+
+
+
 #debugging
 if __name__ == '__main__':
 	full_action_dict, actions_pruned = check_mat.save_actions('data/joint_positions')
 	option1 = full_action_dict['shoot_bow'][actions_pruned['shoot_bow'][5]]['pos_world']
-	#option2 = full_action_dict['shoot_bow'][actions_pruned['shoot_bow'][2]]['pos_world']
-	
-	#animate_two(option1, option2)
 
-	animate_action(option1, "option1")
+	#test
+	title = 'test1/great'
+
+	animate_action(option1, title)
+
+
+
+
+
 
 
 
