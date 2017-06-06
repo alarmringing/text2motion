@@ -4,6 +4,7 @@ import check_mat
 import model
 import random
 import os
+import sys
 import time
 
 
@@ -78,7 +79,7 @@ def split_data(test_num, val_num, action_data, num_iterations, num_batches, T):
 if __name__ == '__main__':
 
 	data_dir = 'data/joint_positions'
-	action_label = argv[1]
+	action_label = sys.argv[1]
 	action_data, T = load_data(data_dir, action_label)
 
 	#Various model arguments	
