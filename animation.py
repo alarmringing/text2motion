@@ -31,9 +31,14 @@ def animate_action(mat, action, test_ind, title):
 	#updates the scatter dots -- not showing right now, there's a bug
 
 	dir_name = os.path.join(os.getcwd(), action)
-	os.mkdir(dir_name)
-	ind_dir = os.path.join(dir_name, '%d' %test_ind )
-	os.mkdir(ind_dir)
+
+	if not os.path.exists(dir_name):
+		os.mkdir(dir_name)
+
+	ind_dir = os.path.join(dir_name, '%s' %test_ind )
+
+	if not os.path.exists(ind_dir):
+		os.mkdir(ind_dir)
 
 	def update_dots(i, mat):
 		scat.set_offsets([mat[0,:,i],mat[1,:,i]])
@@ -60,7 +65,7 @@ def animate_action(mat, action, test_ind, title):
 	scatAnim = animation.FuncAnimation(fig, update_dots, blit=False, frames=numframes, interval = 1, repeat=True, fargs=(mat,))
 	
 	#save as a file with frame rate of choice
-	filename = action + "_" + "%d"%test_ind +'.mp4'
+	filename = action + "_" + "%s"%test_ind +'.mp4'
 	filedir = os.path.join(dir_name, filename)
 	scatAnim.save(filename, fps=15, extra_args=['-vcodec', 'libx264'])
 
