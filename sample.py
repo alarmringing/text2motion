@@ -36,7 +36,6 @@ def sample(model_path, initial_input, savefile_name, pre_step):
 			predictions = sess.run([graph.get_tensor_by_name("regression/predictions:0")], values)
 			#PREDICTIONS WILL BE IN T * BATCH * 30
 			this_pred = predictions[0][t, 0, :]
-			print("this_pred looks like ", this_pred)
 			pred_result[0, :, t+1] = this_pred[:15]
 			pred_result[1, :, t+1] = this_pred[15:]
 			timestep_input = np.concatenate((timestep_input[:,:,:t], \
@@ -61,7 +60,7 @@ if __name__ == '__main__':
 	action_type = sys.argv[2]
 	test_ind = sys.argv[3]
 
-	pre_step = 5
+	pre_step = 10
 	action = extract_action('data/joint_positions', action_type, test_ind)
 	initial_input = generate_initial_input(action)
 	pred_result = sample('data/', initial_input, savefile_name, pre_step)
