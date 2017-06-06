@@ -4,11 +4,11 @@ import train
 import sys
 import animation
 
+def mean_squared_error(pred, truth):
+	return ((pred - truth) ** 2).mean(axis=None)
+
 def sample(model_path, initial_input, savefile_name, pre_step):
 	
-	def mean_squared_error(pred, truth):
-		return np.mean((pred - truth)**2)/(30)
-
 	with tf.Session() as sess:
 		#restores the model 
 		saver = tf.train.import_meta_graph(model_path + savefile_name +'.meta')
@@ -44,24 +44,27 @@ def sample(model_path, initial_input, savefile_name, pre_step):
 			
 		return pred_result
 
-def generate_initial_input(data_dir, action_class, test_ind):
-
+def extract_action(data_dir,action_class, test_ind):
 	action_data, T = train.load_data(data_dir, action_class)
-	#lucky_ind = np.random.choice(len(action_data), 1) #randomly choose one instance! 
 	lucky_ind = int(test_ind)
-	print("lucky ind is ", lucky_ind)
+	return action_data[lucky_ind]['pos_world']
+
+def generate_initial_input(action):
 	#reshape to 1*30*T
-	stacked = np.vstack((action_data[lucky_ind]['pos_world'][0], action_data[lucky_ind]['pos_world'][1]))
+	stacked = np.vstack((action[0], action[1]))
 	stacked = np.expand_dims(stacked, axis=0)
 	return stacked
-
 
 if __name__ == '__main__':
 
 	savefile_name = sys.argv[1]
-	test_ind = sys.argv[2]
+	action_type = sys.argv[2]
+	test_ind = sys.argv[3]
+
 	pre_step = 5
-	initial_input = generate_initial_input('data/joint_positions', 'shoot_bow', test_ind)
-	pred_result = sample('data/', initial_input, savefile_name, 10)
-	#animation.animate_action(np.reshape(initial_input, (2, 15, 40)), 'original shoot_bow')
+	action = extract_action('data/joint_positions', action_type, test_ind)
+	initial_input = generate_initial_input(action)
+	pred_result = sample('data/', initial_input, savefile_name, pre_step)
 	animation.animate_action(pred_result, 'Prediction of shoot_bow')
+
+
