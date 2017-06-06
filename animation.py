@@ -6,7 +6,7 @@ import check_mat
 import os
 
 
-def animate_action(mat, action, title):
+def animate_action(mat, action, test_ind, title):
 	'''
 	Takes an joint position matrix 2*15*framerate, and animates it on pyplot.
 
@@ -32,13 +32,16 @@ def animate_action(mat, action, title):
 
 	dir_name = os.path.join(os.getcwd(), action)
 	os.mkdir(dir_name)
+	ind_dir = os.path.join(dir_name, '%d' %test_ind )
+	os.mkdir(ind_dir)
 
 	def update_dots(i, mat):
 		scat.set_offsets([mat[0,:,i],mat[1,:,i]])
 		connect_plot(mat[:,:,i])
 
 		if i % 5 == 0:
-			img_title = os.path.join(dir_name, 'sample_%d'%i)
+
+			img_title = os.path.join(ind_dir, 'sample_%d'%i)
 			plt.savefig(img_title)
 
 		return scat
@@ -57,7 +60,8 @@ def animate_action(mat, action, title):
 	scatAnim = animation.FuncAnimation(fig, update_dots, blit=False, frames=numframes, interval = 1, repeat=True, fargs=(mat,))
 	
 	#save as a file with frame rate of choice
-	filename = title +'.mp4'
+	filename = action + "_" + "%d"%test_ind +'.mp4'
+	filedir = os.path.join(dir_name, filename)
 	scatAnim.save(filename, fps=15, extra_args=['-vcodec', 'libx264'])
 
 	#show plt
@@ -77,10 +81,10 @@ if __name__ == '__main__':
 	#option1 = full_action_dict['shoot_bow'][actions_pruned['shoot_bow'][5]]['pos_world']
 
 	#test
-	title = 'clap'
-	action = full_action_dict['clap'][actions_pruned['clap'][5]]['pos_world']
+	title = 'wave'
+	action = full_action_dict['wave'][actions_pruned['wave'][5]]['pos_world']
 
-	animate_action(action, 'clap', title)
+	animate_action(action, 'wave', 5, title)
 
 
 
