@@ -42,7 +42,7 @@ def train(model_lstm, batches, num_iterations, print_every, save_every, save_dir
 
 
 def load_data(data_dir, action_label, prune_viewpoints):
-	full_action_data, actions_pruned = check_mat.save_actions(data_dir, prune_viewpoints=prune_viewpoints)
+	full_action_data, actions_pruned = check_mat.save_actions(data_dir, prune_viewpoints)
 	action_data = check_mat.fetch_action_data(action_label, full_action_data, actions_pruned)
 	T = action_data[0]['pos_world'].shape[2]
 	return action_data, T 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 	domain_size = 100
 
 	#define model
-	model_lstm = model_group.Model(\
+	model_lstm = model.Model(\
 		learning_rate, num_batches, T, state_size, layer_num)
 
 	#split data into batches
@@ -104,5 +104,5 @@ if __name__ == '__main__':
 	print_every = 1000
 	save_every = 10000
 	save_dir = 'data'
-	save_name = 'model_group_' + action_label
+	save_name = 'model_' + action_label + '_unpruned'
 	train(model_lstm, batches, num_iterations, print_every, save_every, save_dir, save_name)
