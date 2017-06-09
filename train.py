@@ -2,7 +2,6 @@ import tensorflow as tf
 import numpy as np 
 import check_mat
 import model
-import model_grid
 import random
 import os
 import sys
