@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np 
 import check_mat
 import model
+import model_grid
 import random
 import os
 import sys
@@ -41,11 +42,11 @@ def train(model_lstm, batches, num_iterations, print_every, save_every, save_dir
 		save_path = saver.save(sess, save_dir + "/" + save_name)
 
 
-def load_data(data_dir, action_label):
-	full_action_data, actions_pruned = check_mat.save_actions(data_dir)
+def load_data(data_dir, action_label, prune_data):
+	full_action_data, actions_pruned = check_mat.save_actions(data_dir, prune_data=prune_data)
 	action_data = check_mat.fetch_action_data(action_label, full_action_data, actions_pruned)
 	T = action_data[0]['pos_world'].shape[2]
-	return action_data, T
+	return action_data, T 
 
 def split_data(test_num, val_num, action_data, num_iterations, num_batches, T):
 	
@@ -79,8 +80,9 @@ def split_data(test_num, val_num, action_data, num_iterations, num_batches, T):
 if __name__ == '__main__':
 
 	data_dir = 'data/joint_positions'
-	action_label = sys.argv[1]
-	action_data, T = load_data(data_dir, action_label)
+	action_label = sys.argv[1] #action label
+	prune_data = False
+	action_data, T = load_data(data_dir, action_label, prune_data)
 
 	#Various model arguments	
 	learning_rate = 1.5e-3
@@ -91,7 +93,7 @@ if __name__ == '__main__':
 	domain_size = 100
 
 	#define model
-	model_lstm = model.Model(\
+	model_lstm = model_group.Model(\
 		learning_rate, num_batches, T, state_size, layer_num)
 
 	#split data into batches
@@ -103,5 +105,5 @@ if __name__ == '__main__':
 	print_every = 1000
 	save_every = 10000
 	save_dir = 'data'
-	save_name = 'model_lstm_' + action_label
+	save_name = 'model_group_' + action_label
 	train(model_lstm, batches, num_iterations, print_every, save_every, save_dir, save_name)

@@ -8,7 +8,7 @@ from six.moves import cPickle
 def fetch_action_data(action_label, full_action_dict, actions_pruned):
 	return [full_action_dict[action_label][i] for i in actions_pruned[action_label]]
 
-def save_actions(data_dir):
+def save_actions(data_dir, prune_viewpoints = True):
 	'''
 	crawls through the data and gathers info into a big dictionary, full_action_dict
 
@@ -47,8 +47,12 @@ def save_actions(data_dir):
 		# mats with that orientation and frame # into actions_pruned
 		max_viewpoint = max(set(orientations), key=orientations.count)
 		max_frames = max(set(frames), key=frames.count)
-		actions_pruned[action] = [i for i,v in enumerate(full_action_dict[action]) \
-		if v['viewpoint'][0] == max_viewpoint and len(v['scale'][0]) == max_frames ]
+        if(prune_viewpoints):
+    		actions_pruned[action] = [i for i,v in enumerate(full_action_dict[action]) \
+    		if v['viewpoint'][0] == max_viewpoint and len(v['scale'][0]) == max_frames ]
+        else:
+            actions_pruned[action] = [i for i,v in enumerate(full_action_dict[action]) \
+            if len(v['scale'][0]) == max_frames ]
 
 	return full_action_dict, actions_pruned
 

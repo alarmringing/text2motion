@@ -43,8 +43,8 @@ def sample(model_path, initial_input, savefile_name, pre_step):
 			
 		return pred_result
 
-def extract_action(data_dir,action_class, test_ind):
-	action_data, T = train.load_data(data_dir, action_class)
+def extract_action(data_dir,action_class, prune_data, test_ind):
+	action_data, T = train.load_data(data_dir, action_class, prune_data)
 	lucky_ind = int(test_ind)
 	return action_data[lucky_ind]['pos_world']
 
@@ -59,9 +59,10 @@ if __name__ == '__main__':
 	savefile_name = sys.argv[1]
 	action_type = sys.argv[2]
 	test_ind = sys.argv[3]
+	prune_data = False
 
 	pre_step = 10
-	action = extract_action('data/joint_positions', action_type, test_ind)
+	action = extract_action('data/joint_positions', action_type, prune_data, test_ind)
 	initial_input = generate_initial_input(action)
 	pred_result = sample('data/', initial_input, savefile_name, pre_step)
 	animation.animate_action(pred_result, action_type, test_ind,'Prediction of %s'%action_type)
