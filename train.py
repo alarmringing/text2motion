@@ -2,7 +2,6 @@ import tensorflow as tf
 import numpy as np 
 import check_mat
 import model
-import model_grid
 import random
 import os
 import sys
@@ -42,8 +41,8 @@ def train(model_lstm, batches, num_iterations, print_every, save_every, save_dir
 		save_path = saver.save(sess, save_dir + "/" + save_name)
 
 
-def load_data(data_dir, action_label, prune_data):
-	full_action_data, actions_pruned = check_mat.save_actions(data_dir, prune_data=prune_data)
+def load_data(data_dir, action_label, prune_viewpoints):
+	full_action_data, actions_pruned = check_mat.save_actions(data_dir, prune_viewpoints=prune_viewpoints)
 	action_data = check_mat.fetch_action_data(action_label, full_action_data, actions_pruned)
 	T = action_data[0]['pos_world'].shape[2]
 	return action_data, T 
@@ -81,8 +80,8 @@ if __name__ == '__main__':
 
 	data_dir = 'data/joint_positions'
 	action_label = sys.argv[1] #action label
-	prune_data = False
-	action_data, T = load_data(data_dir, action_label, prune_data)
+	prune_viewpoints = False
+	action_data, T = load_data(data_dir, action_label, prune_viewpoints)
 
 	#Various model arguments	
 	learning_rate = 1.5e-3

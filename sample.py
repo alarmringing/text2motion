@@ -59,10 +59,10 @@ if __name__ == '__main__':
 	savefile_name = sys.argv[1]
 	action_type = sys.argv[2]
 	test_ind = sys.argv[3]
-	prune_data = False
+	prune_viewpoints = False
 
 	pre_step = 10
-	action = extract_action('data/joint_positions', action_type, prune_data, test_ind)
+	action = extract_action('data/joint_positions', action_type, prune_viewpoints, test_ind)
 	initial_input = generate_initial_input(action)
 	pred_result = sample('data/', initial_input, savefile_name, pre_step)
 	animation.animate_action(pred_result, action_type, test_ind,'Prediction of %s'%action_type)
